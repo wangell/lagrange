@@ -902,16 +902,7 @@ void submit_GmRequest(iGmRequest *d) {
             port = 0;
         }
     }
-    else if (equalCase_Rangecc(url.scheme, "gopher")) {
-        beginGopherConnection_GmRequest_(d, host, port ? port : 70);
-        return;
-    }
-    else if (equalCase_Rangecc(url.scheme, "finger")) {
-        beginGopherConnection_GmRequest_(d, host, port ? port : 79);
-        return;
-    }
-    else if (!equalCase_Rangecc(url.scheme, "gemini") &&
-             !equalCase_Rangecc(url.scheme, "titan")) {
+    else if (!equalCase_Rangecc(url.scheme, "gemini")) {
         resp->statusCode = unsupportedProtocol_GmStatusCode;
         d->state = finished_GmRequestState;
         iNotifyAudience(d, finished, GmRequestFinished);
