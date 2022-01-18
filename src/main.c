@@ -37,11 +37,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 #  include <mpg123.h>
 #endif
 
+#include <SDL.h>
+#include <lua.h>
+#include <lualib.h>
+#include <lauxlib.h>
+#include <signal.h>
+#include <stdio.h>
 #include <the_Foundation/commandline.h>
 #include <the_Foundation/tlsrequest.h>
-#include <SDL.h>
-#include <stdio.h>
-#include <signal.h>
 
 int main(int argc, char **argv) {
     signal(SIGPIPE, SIG_IGN);
@@ -83,8 +86,15 @@ int main(int argc, char **argv) {
         fprintf(stderr, "[SDL] init failed: %s\n", SDL_GetError());
         return -1;
     }
+
+    lua = luaL_newstate();
+    luaL_openlibs(lua);
+
     init_Updater();
     run_App(argc, argv);
+
+    lua_close(lua);
+
     SDL_Quit();
 #if defined (LAGRANGE_ENABLE_MPG123)
     mpg123_exit();
