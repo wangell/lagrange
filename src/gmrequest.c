@@ -32,6 +32,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 #include "resources.h"
 #include "defs.h"
 
+#include <lua.h>
 #include <the_Foundation/archive.h>
 #include <the_Foundation/file.h>
 #include <the_Foundation/fileinfo.h>
@@ -293,13 +294,41 @@ static void readIncoming_GmRequest_(iGmRequest *d, iTlsRequest *req) {
 
 static void applyFilter_GmRequest_(iGmRequest *d) {
     iAssert(d->state == finished_GmRequestState);
+
     iBlock *xbody = tryFilter_MimeHooks(mimeHooks_App(), &d->resp->meta, &d->resp->body, &d->url);
-    if (xbody) {
+    const char *ptr   = constBegin_Block(&(d->resp->body));
+    //printf("line %s\n", ptr);
+    // Pass it to lua/chibi-scheme
+
+    //iBlock *block_output = new_Block(0);
+    iBlock *block_output = newCStr_Block("20 text/gemini; charset=utf-8\r\n");
+
+    lua_getglobal(lua, "test");
+    lua_pushlstring(lua, ptr, strlen(ptr));
+    if (lua_pcall(lua, 1, 1, 0) != 0) {
+      printf("bugg0!\n");
+    }
+    const char* lua_output = lua_tostring(lua, -1);
+
+    appendData_Block(block_output, lua_output, strlen(lua_output));
+
+    //if (start_Process(proc)) {
+    //    writeInput_Process(proc, body);
+    //    output = readOutputUntilClosed_Process(proc);
+    //    if (!startsWith_Rangecc(range_Block(output), "20")) {
+    //        /* Didn't produce valid output. */
+    //        delete_Block(output);
+    //        output = NULL;
+    //    }
+    //}
+    //iRelease(proc);
+
+    if (block_output) {
         lock_Mutex(d->mtx);
         clear_String(&d->resp->meta);
         clear_Block(&d->resp->body);
         d->state = receivingHeader_GmRequestState;
-        processIncomingData_GmRequest_(d, xbody);
+        processIncomingData_GmRequest_(d, block_output);
         d->state = finished_GmRequestState;
         unlock_Mutex(d->mtx);
     }
@@ -335,9 +364,7 @@ static void requestFinished_GmRequest_(iGmRequest *d, iTlsRequest *req) {
     checkServerCertificate_GmRequest_(d);
     unlock_Mutex(d->mtx);
     /* Check for mimehooks. */
-    if (d->isRespFiltered && d->state == finished_GmRequestState) {
-        applyFilter_GmRequest_(d);
-    }
+    applyFilter_GmRequest_(d);
     iNotifyAudience(d, finished, GmRequestFinished);
 }
 
