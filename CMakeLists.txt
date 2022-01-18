@@ -511,7 +511,7 @@ Terminal=false
 Type=Application
 StartupWMClass=lagrange
 Icon=fi.skyjake.Lagrange
-MimeType=x-scheme-handler/gemini;x-scheme-handler/gopher;
+MimeType=x-scheme-handler/gemini;
 ")
     install (TARGETS app DESTINATION ${CMAKE_INSTALL_BINDIR})
     install (FILES ${desktop} DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications)
