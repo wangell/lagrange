@@ -22,6 +22,10 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 
 #pragma once
 
+#include <lauxlib.h>
+#include <lua.h>
+#include <lualib.h>
+
 #include <the_Foundation/objectlist.h>
 #include <the_Foundation/string.h>
 #include <the_Foundation/stringset.h>
@@ -40,6 +44,7 @@ iDeclareType(Root)
 iDeclareType(Visited)
 iDeclareType(Window)
 
+
 /* Command line options strings. */
 #define listTabUrls_CommandLineOption       "list-tab-urls;L"
 #define openUrlOrSearch_CommandLineOption   "url-or-search;u"
@@ -51,6 +56,8 @@ enum iAppDeviceType {
     tablet_AppDeviceType,
     phone_AppDeviceType,
 };
+
+lua_State *lua;
 
 enum iAppEventMode {
     waitForNewEvents_AppEventMode,
