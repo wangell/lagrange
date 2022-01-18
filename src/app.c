@@ -1270,11 +1270,7 @@ static iBool nextEvent_App_(iApp *d, enum iAppEventMode eventMode, SDL_Event *ev
     /* SDL regression circa 2.0.18? SDL_PollEvent() doesn't always return 
        events posted immediately beforehand. Waiting with a very short timeout
        seems to work better. */
-#if defined (iPlatformLinux)
-    return SDL_WaitEventTimeout(event, 1);
-#else
     return SDL_PollEvent(event);
-#endif
 }
 
 static iPtrArray *listWindows_App_(const iApp *d, iPtrArray *windows) {
@@ -1403,49 +1399,7 @@ void processEvents_App(enum iAppEventMode eventMode) {
 #endif
                 /* Scroll events may be per-pixel or mouse wheel steps. */
                 if (ev.type == SDL_MOUSEWHEEL) {
-#if defined (iPlatformMsys)
-                    ev.wheel.x = -ev.wheel.x;
-#endif
                 }
-#if defined (LAGRANGE_ENABLE_MOUSE_TOUCH_EMULATION)
-                /* Convert mouse events to finger events to test the touch handling. */ {
-                    static float xPrev = 0.0f;
-                    static float yPrev = 0.0f;
-                    if (ev.type == SDL_MOUSEBUTTONDOWN || ev.type == SDL_MOUSEBUTTONUP) {
-                        const float xf = (d->window->pixelRatio * ev.button.x) / (float) d->window->size.x;
-                        const float yf = (d->window->pixelRatio * ev.button.y) / (float) d->window->size.y;
-                        ev.type = (ev.type == SDL_MOUSEBUTTONDOWN ? SDL_FINGERDOWN : SDL_FINGERUP);
-                        ev.tfinger.x = xf;
-                        ev.tfinger.y = yf;
-                        ev.tfinger.dx = xf - xPrev;
-                        ev.tfinger.dy = yf - yPrev;
-                        xPrev = xf;
-                        yPrev = yf;
-                        ev.tfinger.fingerId = 0x1234;
-                        ev.tfinger.pressure = 1.0f;
-                        ev.tfinger.timestamp = SDL_GetTicks();
-                        ev.tfinger.touchId = SDL_TOUCH_MOUSEID;
-                    }
-                    else if (ev.type == SDL_MOUSEMOTION) {
-                        if (~ev.motion.state & SDL_BUTTON(SDL_BUTTON_LEFT)) {
-                            continue; /* only when pressing a button */
-                        }
-                        const float xf = (d->window->pixelRatio * ev.motion.x) / (float) d->window->size.x;
-                        const float yf = (d->window->pixelRatio * ev.motion.y) / (float) d->window->size.y;
-                        ev.type = SDL_FINGERMOTION;
-                        ev.tfinger.x = xf;
-                        ev.tfinger.y = yf;
-                        ev.tfinger.dx = xf - xPrev;
-                        ev.tfinger.dy = yf - yPrev;
-                        xPrev = xf;
-                        yPrev = yf;
-                        ev.tfinger.fingerId = 0x1234;
-                        ev.tfinger.pressure = 1.0f;
-                        ev.tfinger.timestamp = SDL_GetTicks();
-                        ev.tfinger.touchId = SDL_TOUCH_MOUSEID;
-                    }
-                }
-#endif
                 /* Per-window processing. */
                 iBool wasUsed = iFalse;
                 listWindows_App_(d, &windows);
@@ -1475,12 +1429,6 @@ void processEvents_App(enum iAppEventMode eventMode) {
                     }
                 }
                 if (ev.type == SDL_USEREVENT && ev.user.code == command_UserEventCode) {
-#if defined (iPlatformAppleDesktop)
-                    handleCommand_MacOS(command_UserEvent(&ev));
-#endif
-#if defined (iPlatformMsys)
-                    handleCommand_Win32(command_UserEvent(&ev));
-#endif
                     if (isMetricsChange_UserEvent(&ev)) {
                         listWindows_App_(d, &windows);
                         iConstForEach(PtrArray, iter, &windows) {
