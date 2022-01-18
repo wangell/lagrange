@@ -56,13 +56,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 #include "visbuf.h"
 #include "visited.h"
 
-#if defined (iPlatformAppleDesktop)
-#   include "macos.h"
-#endif
-#if defined (iPlatformAppleMobile)
-#   include "ios.h"
-#endif
-
 #include <the_Foundation/archive.h>
 #include <the_Foundation/file.h>
 #include <the_Foundation/fileinfo.h>
@@ -5127,8 +5120,6 @@ static iBool processEvent_DocumentWidget_(iDocumentWidget *d, const SDL_Event *e
                     pushBackN_Array(
                         &items,
                         (iMenuItem[]){
-                            { backArrow_Icon " ${menu.back}", navigateBack_KeyShortcut, "navigate.back" },
-                            { forwardArrow_Icon " ${menu.forward}", navigateForward_KeyShortcut, "navigate.forward" },
                             { upArrow_Icon " ${menu.parent}", navigateParent_KeyShortcut, "navigate.parent" },
                             { upArrowBar_Icon " ${menu.root}", navigateRoot_KeyShortcut, "navigate.root" },
                             { "---" },
@@ -5139,10 +5130,9 @@ static iBool processEvent_DocumentWidget_(iDocumentWidget *d, const SDL_Event *e
                             { star_Icon " ${menu.page.subscribe}", subscribeToPage_KeyModifier, "feeds.subscribe" },
                             { "---" },
                             { book_Icon " ${menu.page.import}", 0, 0, "bookmark.links confirm:1" },
-                            { globe_Icon " ${menu.page.translate}", 0, 0, "document.translate" },
                             { "---" },
                             { "${menu.page.copyurl}", 0, 0, "document.copylink" } },
-                        15);
+                        12);
                     if (isEmpty_Range(&d->selectMark)) {
                         pushBackN_Array(
                             &items,
