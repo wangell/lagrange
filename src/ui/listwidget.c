@@ -491,6 +491,7 @@ static iBool processEvent_ListWidget_(iListWidget *d, const SDL_Event *ev) {
     }
     switch (processEvent_Click(&d->click, ev)) {
         case started_ClickResult:
+          middle_button = false;
             d->noHoverWhileScrolling = iFalse;
             updateHover_ListWidget_(d, mouseCoord_Window(get_Window(), ev->button.which));
             redrawHoverItem_ListWidget_(d);
@@ -525,11 +526,15 @@ static iBool processEvent_ListWidget_(iListWidget *d, const SDL_Event *ev) {
                                             zero_I2(), init_I2(-d->dragHandleWidth, 0)),
                               pos_Click(&d->click)) &&
                 d->hoverItem != iInvalidPos) {
-                postCommand_Widget(w, "list.clicked arg:%zu item:%p",
-                                   d->hoverItem, constHoverItem_ListWidget(d));
+                postCommand_Widget(w, "list.clicked arg:%zu item:%p", d->hoverItem, constHoverItem_ListWidget(d));
             }
             return iTrue;
         default:
+          if (ev->button.button == SDL_BUTTON_MIDDLE && ev->type == SDL_MOUSEBUTTONUP) {
+            middle_button = true;
+              postCommand_Widget(
+                  w, "list.clicked arg:%zu item:%p", d->hoverItem, constHoverItem_ListWidget(d));
+          }
             break;
     }
     return processEvent_Widget(w, ev);

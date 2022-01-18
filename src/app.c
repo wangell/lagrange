@@ -157,6 +157,8 @@ struct Impl_App {
     iPrefs       prefs;
 };
 
+bool middle_button = true;
+
 static iApp app_;
 
 /*----------------------------------------------------------------------------------------------*/

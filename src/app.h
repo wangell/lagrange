@@ -145,3 +145,5 @@ void            resetFonts_App          (void);
 
 iMainWindow *   mainWindow_App  (void);
 void            closePopups_App (void);
+
+bool middle_button;

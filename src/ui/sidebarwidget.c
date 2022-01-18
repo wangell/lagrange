@@ -44,6 +44,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE. */
 #include "util.h"
 #include "visited.h"
 
+#include <stdint.h>
 #include <the_Foundation/intset.h>
 #include <the_Foundation/regexp.h>
 #include <the_Foundation/stringarray.h>
@@ -1005,9 +1006,16 @@ static void itemClicked_SidebarWidget_(iSidebarWidget *d, iSidebarItem *item, si
             /* fall through */
         case history_SidebarMode: {
             if (!isEmpty_String(&item->url)) {
-                postCommandf_Root(get_Root(), "open fromsidebar:1 newtab:%d url:%s",
-                                 openTabMode_Sym(modState_Keys()),
-                                 cstr_String(&item->url));
+              // 1 == focus
+              // 2 == dont focus
+
+              if (middle_button) {
+                  postCommandf_Root(
+                      get_Root(), "open newtab:%d url:%s", 2, cstr_String(&item->url));
+              } else {
+                  postCommandf_Root(
+                      get_Root(), "open newtab:%d url:%s", 1, cstr_String(&item->url));
+              }
             }
             break;
         }
@@ -1429,8 +1437,7 @@ static iBool processEvent_SidebarWidget_(iSidebarWidget *d, const SDL_Event *ev)
             return iTrue;
         }
         else if (isCommand_Widget(w, ev, "list.clicked")) {
-            itemClicked_SidebarWidget_(
-                d, pointerLabel_Command(cmd, "item"), argU32Label_Command(cmd, "arg"));
+          itemClicked_SidebarWidget_(d, pointerLabel_Command(cmd, "item"), argU32Label_Command(cmd, "arg"));
             return iTrue;
         }
         else if (isCommand_Widget(w, ev, "list.dragged")) {
@@ -1453,9 +1460,7 @@ static iBool processEvent_SidebarWidget_(iSidebarWidget *d, const SDL_Event *ev)
         else if (isCommand_Widget(w, ev, "bookmark.open")) {
             const iSidebarItem *item = d->contextItem;
             if (d->mode == bookmarks_SidebarMode && item) {
-                postCommandf_App("open newtab:%d url:%s",
-                                 argLabel_Command(cmd, "newtab"),
-                                 cstr_String(&item->url));
+                postCommandf_App("open newtab:%d url:%s", argLabel_Command(cmd, "newtab"), cstr_String(&item->url));
             }
             return iTrue;
         }
