@@ -5140,11 +5140,9 @@ static iBool processEvent_DocumentWidget_(iDocumentWidget *d, const SDL_Event *e
                             { "---" },
                             { book_Icon " ${menu.page.import}", 0, 0, "bookmark.links confirm:1" },
                             { globe_Icon " ${menu.page.translate}", 0, 0, "document.translate" },
-                            { upload_Icon " ${menu.page.upload}", 0, 0, "document.upload" },
-                            { "${menu.page.upload.edit}", 0, 0, "document.upload copy:1" },
                             { "---" },
                             { "${menu.page.copyurl}", 0, 0, "document.copylink" } },
-                        17);
+                        15);
                     if (isEmpty_Range(&d->selectMark)) {
                         pushBackN_Array(
                             &items,
